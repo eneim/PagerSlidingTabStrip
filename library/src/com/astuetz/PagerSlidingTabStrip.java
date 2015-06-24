@@ -95,6 +95,9 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
     private int mPaddingLeft = 0;
     private int mPaddingRight = 0;
 
+    private int mPaddingLeftMiddle = 0;
+    private int mPaddingRightMiddle = 0;
+
     private boolean isExpandTabs = false;
     private boolean isCustomTabs;
     private boolean isPaddingMiddle = false;
@@ -359,7 +362,9 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
         @Override
         public void onGlobalLayout() {
-            View view = mTabsContainer.getChildAt(0);
+            View firstChild = mTabsContainer.getChildAt(0);
+            View lastChild = mTabsContainer.getChildAt(mTabsContainer.getChildCount() - 1);
+
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 removeGlobalLayoutListenerPreJB();
             } else {
@@ -367,8 +372,10 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
             }
 
             if (isPaddingMiddle) {
-                int mHalfWidthFirstTab = view.getWidth() / 2;
-                mPaddingLeft = mPaddingRight = getWidth() / 2 - mHalfWidthFirstTab;
+                mPaddingLeftMiddle = mPaddingRightMiddle = mPaddingLeft = mPaddingRight = getWidth() / 2 - firstChild.getWidth() / 2;
+                if (lastChild != null) {
+                    mPaddingRightMiddle = getWidth() / 2 - lastChild.getWidth() / 2;
+                }
             }
 
             setPadding(mPaddingLeft, getPaddingTop(), mPaddingRight, getPaddingBottom());
@@ -718,6 +725,32 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
         if (mPager != null) {
             requestLayout();
         }
+    }
+
+    @Override
+    public void setPadding(int left, int top, int right, int bottom) {
+        super.setPadding(left, top, right, bottom);
+        mPaddingLeft = left;
+        mPaddingRight = right;
+    }
+
+    public void setPaddingMiddle(boolean flag) {
+        if (this.isPaddingMiddle == flag)
+            return;
+        this.isPaddingMiddle = flag;
+        requestLayout();
+    }
+
+    public int getPaddingLeftOnMiddle() {
+        return mPaddingLeftMiddle;
+    }
+
+    public int getPaddingRightOnMiddle() {
+        return mPaddingRightMiddle;
+    }
+
+    public boolean isPaddingMiddle() {
+        return this.isPaddingMiddle;
     }
 
     public void setAllCaps(boolean textAllCaps) {
